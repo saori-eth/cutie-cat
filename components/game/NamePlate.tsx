@@ -58,16 +58,6 @@ const RoundedRect = ({
     shape.quadraticCurveTo(x, y, x + radius, y);
     return shape;
   };
-
-  // Define the dimensions of the background
-  const backgroundWidth = 0.6; // Adjust based on text length
-  const backgroundHeight = 0.15;
-  const borderRadius = 0.05;
-  const roundedRectShape = createRoundedRectShape(
-    backgroundWidth,
-    backgroundHeight,
-    borderRadius
-  );
   const shape = createRoundedRectShape(width, height, radius);
   return <shapeGeometry args={[shape]} />;
 };

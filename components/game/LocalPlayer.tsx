@@ -4,6 +4,7 @@ import { useStore } from "@/hooks/useStore";
 import { PlayerController } from "./PlayerController";
 import type { PlayerState } from "playroomkit";
 import { NamePlate } from "./NamePlate";
+import { useGLTF } from "@react-three/drei";
 
 interface LocalPlayerProps {
   player: PlayerState;
@@ -16,13 +17,12 @@ interface LocalPlayerProps {
 export const LocalPlayer = (props: LocalPlayerProps) => {
   const player = props.player;
   const { name, color } = props.user;
-  const meshRef = useRef<Mesh>(null);
+  const { scene: moodeng } = useGLTF("/moodeng.glb?id=" + player.id);
   const { actions } = useStore();
 
   useEffect(() => {
-    const { current: mesh } = meshRef;
-    if (!mesh) return;
-    mesh.traverse((child) => {
+    if (!moodeng) return;
+    moodeng.traverse((child) => {
       if (child.type === "Mesh") {
         child.castShadow = true;
         child.receiveShadow = true;
@@ -33,23 +33,15 @@ export const LocalPlayer = (props: LocalPlayerProps) => {
       name,
       color,
       type: "localPlayer",
-      mesh,
+      mesh: moodeng,
     });
-  }, [meshRef]);
+  }, [moodeng]);
 
   return (
     <>
       <PlayerController player={player}>
         <NamePlate name={name} />
-        <mesh
-          ref={meshRef}
-          userData={{ name: "localPlayer" }}
-          castShadow
-          receiveShadow
-        >
-          <boxGeometry args={[0.5, 0.5, 0.5]} />
-          <meshStandardMaterial color={color} />
-        </mesh>
+        <primitive object={moodeng} scale={0.125} />
       </PlayerController>
     </>
   );

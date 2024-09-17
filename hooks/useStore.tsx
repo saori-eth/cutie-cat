@@ -1,5 +1,5 @@
 import { RapierRigidBody } from "@react-three/rapier";
-import type { Group, Mesh } from "three";
+import type { Group, Mesh, Object3D } from "three";
 import { create } from "zustand";
 
 type Entity = {
@@ -7,7 +7,7 @@ type Entity = {
   name?: string;
   color?: string;
   type: "localPlayer" | "remotePlayer";
-  mesh?: Mesh;
+  mesh?: Mesh | Object3D;
   rigidBody?: RapierRigidBody;
   head?: Group;
   headCam?: Group;

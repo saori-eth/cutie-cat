@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Vector3, Group, Mesh, Quaternion } from "three";
+import { Vector3, Group, Quaternion } from "three";
 import {
   RigidBody,
   CapsuleCollider,
   RapierRigidBody,
   useBeforePhysicsStep,
 } from "@react-three/rapier";
-import { Billboard, Text } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
 import { NamePlate } from "./NamePlate";
 
 interface RemotePlayerProps {
@@ -26,6 +26,8 @@ export const RemotePlayer = (props: RemotePlayerProps) => {
 
   const currentPosition = useRef(new Vector3(0, 0, 0));
   const targetPosition = useRef(new Vector3(0, 0, 0));
+
+  const { scene: playerModel } = useGLTF("/moodeng.glb?id=" + props.id);
 
   const lerpFactor = 0.1;
   useBeforePhysicsStep(() => {
@@ -69,10 +71,7 @@ export const RemotePlayer = (props: RemotePlayerProps) => {
       <CapsuleCollider args={[0.2, 0.25]} mass={50} />
       <group ref={playerRef}>
         <NamePlate name={name} />
-        <mesh>
-          <boxGeometry args={[0.5, 0.5, 0.5]} />
-          <meshStandardMaterial color={color} />
-        </mesh>
+        <primitive object={playerModel} scale={0.125} />
       </group>
     </RigidBody>
   );

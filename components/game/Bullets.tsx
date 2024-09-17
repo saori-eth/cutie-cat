@@ -1,13 +1,18 @@
+// Bullets.js
 import { useStore } from "@/hooks/useStore";
+import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { RapierRigidBody, RigidBody, useRapier } from "@react-three/rapier";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Vector3, Mesh } from "three";
 
 export const Bullets = () => {
   const { actions, selectors } = useStore();
   const bullets = selectors.getBullets();
   const myId = selectors.getLocalEntity()?.id;
+
+  // Load the model once
+  const watermelonModel = useGLTF("/watermelon.glb");
 
   useFrame(() => {
     const now = Date.now();
@@ -23,29 +28,24 @@ export const Bullets = () => {
   return (
     <group>
       {bullets.map((bullet) => (
-        <Bullet key={bullet.id} myId={myId ? myId : ""} {...bullet} />
+        <Bullet
+          key={bullet.id}
+          myId={myId ? myId : ""}
+          model={watermelonModel}
+          {...bullet}
+        />
       ))}
     </group>
   );
 };
-
 const BULLET_SPEED = 20;
-const Bullet = ({
-  myId,
-  id,
-  position,
-  direction,
-}: {
-  myId: string;
-  id: string;
-  position: [number, number, number];
-  direction: [number, number, number];
-}) => {
+
+const Bullet = ({ myId, id, position, direction, model }) => {
   const { actions } = useStore();
   const physicsRef = useRef<RapierRigidBody>(null);
   const meshRef = useRef<Mesh>(null);
   const bulletEntityId = id.split("~")[0];
-  const rapier = useRapier();
+  const clonedModel = useMemo(() => model.scene.clone(), [model]);
 
   useEffect(() => {
     if (!physicsRef.current) return;
@@ -59,7 +59,7 @@ const Bullet = ({
   }, []);
 
   return (
-    <group position={position}>
+    <group position={[position[0], position[1] + 0.5, position[2]]}>
       <RigidBody
         ref={physicsRef}
         gravityScale={0}
@@ -86,10 +86,7 @@ const Bullet = ({
           actions.removeBullet(id);
         }}
       >
-        <mesh ref={meshRef}>
-          <sphereGeometry args={[0.1, 32, 32]} />
-          <meshStandardMaterial color="red" />
-        </mesh>
+        <primitive object={clonedModel} position={[0.4, 0, 0]} />
       </RigidBody>
     </group>
   );
